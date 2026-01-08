@@ -15,7 +15,7 @@ import urllib.request
 from pathlib import Path
 from typing import List, Tuple
 
-URL = "https://www.unicode.org/Public/UCD/latest/ucd/Scripts.txt"
+URL = "https://www.unicode.org/Public/15.1.0/ucd/Scripts.txt"
 # Output relative to this script: ../src/indium/_scripts_data.py
 OUTPUT_FILE = Path(__file__).parent.parent / "src" / "indium" / "_scripts_data.py"
 

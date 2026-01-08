@@ -8,6 +8,7 @@ Implementation: UAX #29 (Unicode Text Segmentation)
 """
 
 import bisect
+from functools import lru_cache
 from typing import Iterator, Optional
 
 from ._exceptions import TruncationError
@@ -33,6 +34,7 @@ from ._grapheme_data import (
 )
 
 
+@lru_cache(maxsize=4096)
 def _get_break_property(codepoint: int) -> int:
     """Get Grapheme_Cluster_Break property for a code point."""
     # Binary search in the RLE table

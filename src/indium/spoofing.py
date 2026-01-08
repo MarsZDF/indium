@@ -5,8 +5,10 @@ characters that could be used in phishing attacks, domain spoofing, or
 other security vulnerabilities.
 """
 
-import bisect
 import unicodedata
+import bisect
+from functools import lru_cache
+from typing import Union
 
 from ._confusables import CONFUSABLES
 from ._scripts_data import SCRIPT_RANGES
@@ -193,6 +195,7 @@ def detect_confusables(
 
 
 # Internal helper: Get script name for a character
+@lru_cache(maxsize=4096)
 def _get_script_name(char: str) -> str:
     """Get Unicode script name for character.
 

@@ -15,7 +15,7 @@ import urllib.request
 from pathlib import Path
 from typing import Dict, Tuple
 
-URL = "https://www.unicode.org/Public/security/latest/confusables.txt"
+URL = "https://www.unicode.org/Public/security/15.1.0/confusables.txt"
 # Output relative to this script: ../src/indium/_confusables.py
 OUTPUT_FILE = Path(__file__).parent.parent / "src" / "indium" / "_confusables.py"
 

@@ -17,11 +17,12 @@ import urllib.request
 from pathlib import Path
 from typing import List, Tuple, Dict
 
-# URLs
-GRAPHEME_URL = "https://www.unicode.org/Public/UCD/latest/ucd/auxiliary/GraphemeBreakProperty.txt"
-EMOJI_URL = "https://www.unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt"
-TEST_URL = "https://www.unicode.org/Public/UCD/latest/ucd/auxiliary/GraphemeBreakTest.txt"
-CORE_URL = "https://www.unicode.org/Public/UCD/latest/ucd/DerivedCoreProperties.txt"
+# URLs - Pinned to Unicode 15.1.0 for stability
+BASE_URL = "https://www.unicode.org/Public/15.1.0/ucd"
+GRAPHEME_URL = f"{BASE_URL}/auxiliary/GraphemeBreakProperty.txt"
+EMOJI_URL = f"{BASE_URL}/emoji/emoji-data.txt"
+TEST_URL = f"{BASE_URL}/auxiliary/GraphemeBreakTest.txt"
+CORE_URL = f"{BASE_URL}/DerivedCoreProperties.txt"
 
 # Output
 OUTPUT_FILE = Path(__file__).parent.parent / "src" / "indium" / "_grapheme_data.py"

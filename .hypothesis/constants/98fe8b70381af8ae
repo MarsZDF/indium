@@ -1,0 +1,4 @@
+# file: /Users/marco/open-source/indium/src/indium/spoofing.py
+# hypothesis_version: 6.141.1
+
+[4096, 'CJK', 'Common', 'Han', 'Hangul', 'Hiragana', 'Inherited', 'Katakana', 'Latin', 'M', 'N', 'NFKC', 'P', 'S', 'Unknown', 'Z', 'zzzzzz']
