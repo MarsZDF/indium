@@ -43,6 +43,12 @@ classifiers = [
 
 [project.optional-dependencies]
 test = ["pytest>=7.0", "pytest-cov>=4.0", "hypothesis>=6.0"]
+dev = [
+    "ruff>=0.3.0",
+    "mypy>=1.0.0",
+    "build>=1.0.0",
+    "twine>=5.0.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/MarsZDF/indium"
@@ -72,7 +78,8 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 [tool.ruff.lint.per-file-ignores]
 "src/indium/_confusables.py" = ["E501"]
 "src/indium/_scripts_data.py" = ["E501"]
-"tests/*" = ["E501"]
+"tests/*" = ["E501", "F401"]
+"tools/*" = ["E501", "F401", "UP035", "UP006"]
 
 [tool.mypy]
 python_version = "3.9"

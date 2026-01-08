@@ -8,15 +8,16 @@ Usage:
 Generates a bisect-able table of script ranges.
 """
 
-import sys
-import os
-import urllib.request
 import datetime
+import os
+import sys
+import urllib.request
 from pathlib import Path
 from typing import List, Tuple
 
 URL = "https://www.unicode.org/Public/UCD/latest/ucd/Scripts.txt"
-OUTPUT_FILE = Path("src/indium/_scripts_data.py")
+# Output relative to this script: ../src/indium/_scripts_data.py
+OUTPUT_FILE = Path(__file__).parent.parent / "src" / "indium" / "_scripts_data.py"
 
 HEADER = f'''"""Unicode Script property data.
 
@@ -42,14 +43,14 @@ def parse_line(line: str) -> Tuple[int, int, str]:
         data, _ = line.split('#', 1)
     else:
         data = line
-        
+
     parts = [p.strip() for p in data.split(';')]
     if len(parts) < 2:
         return None
-        
+
     range_part = parts[0]
     script_name = parts[1]
-    
+
     if '..' in range_part:
         start_hex, end_hex = range_part.split('..')
         start = int(start_hex, 16)
@@ -57,20 +58,20 @@ def parse_line(line: str) -> Tuple[int, int, str]:
     else:
         start = int(range_part, 16)
         end = start
-        
+
     return start, end, script_name
 
 def generate(input_path: str):
     print(f"Reading from {input_path}...")
-    
+
     ranges: List[Tuple[int, int, str]] = []
-    
-    with open(input_path, 'r', encoding='utf-8') as f:
+
+    with open(input_path, encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-                
+
             try:
                 result = parse_line(line)
                 if result:
@@ -80,68 +81,52 @@ def generate(input_path: str):
 
     # Sort by start position
     ranges.sort()
-    
-    # Merge adjacent ranges with same script
-    merged: List[Tuple[int, str]] = []
-    
+
     if not ranges:
         print("No data found!")
         return
 
     # Algorithm: We want a flat list of (start_codepoint, script_name)
     # for use with bisect_right.
-    # If ranges are [0..10 Latin, 11..20 Greek], bisect needs breakpoints.
-    # Actually, simplistic approach: List of (limit, script) where limit is END.
-    # But ranges might have gaps (Unknown).
-    
-    # Let's generate a flat list of (start_cp, script_name).
-    # Gaps will effectively "fall through" to the previous script if we are careless.
-    # Safer approach: (start_cp, script_name)
-    # 0 -> Common
-    # 128 -> Latin
-    # ...
-    
-    # We need to fill gaps with 'Unknown' if we use simple bisect.
-    
+
     final_table: List[Tuple[int, str]] = []
-    
+
     current_pos = 0
     current_script = "Unknown"
-    
+
     for start, end, script in ranges:
         # If there is a gap, fill it with Unknown (Zzzz)
-        if start > current_pos:
-            if current_script != "Unknown":
-                final_table.append((current_pos, "Unknown"))
-                current_script = "Unknown"
-            
+        if start > current_pos and current_script != "Unknown":
+            final_table.append((current_pos, "Unknown"))
+            current_script = "Unknown"
+
         # Start of new range
         if script != current_script:
-            # Avoid duplicate start keys if gap was 0 size (should be handled by start > current_pos)
+            # Avoid duplicate start keys if gap was 0 size
             if final_table and final_table[-1][0] == start:
-                 final_table.pop()
-                 
+                final_table.pop()
+
             final_table.append((start, script))
             current_script = script
-            
+
         # The range goes until `end`.
         # The next range starts at `end + 1`.
         current_pos = end + 1
-        
+
     # Add final sentinel? Not needed if we handle index out of bounds.
-    
+
     print(f"Generated {len(final_table)} breakdown points from {len(ranges)} ranges.")
-    
+
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write(HEADER)
         f.write("\n")
         f.write("# Sorted list of (start_codepoint, script_name)\n")
         f.write("# Use bisect.bisect_right to find the index\n")
         f.write("SCRIPT_RANGES: Final[tuple[tuple[int, str], ...]] = (\n")
-        
+
         for start, script in final_table:
             f.write(f"    ({start}, '{script}'),\n")
-            
+
         f.write(")\n")
 
     print(f"Written to {OUTPUT_FILE}")
@@ -157,7 +142,7 @@ def main():
             print(f"Downloading from {URL}...")
             input_path = "tools/data/Scripts_downloaded.txt"
             urllib.request.urlretrieve(URL, input_path)
-            
+
     generate(input_path)
 
 if __name__ == "__main__":
