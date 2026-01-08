@@ -1,0 +1,4 @@
+# file: /Users/marco/open-source/indium/src/indium/__init__.py
+# hypothesis_version: 6.141.1
+
+['0.1.0', 'IndiumError', 'InvalidTextError', 'TruncationError', 'count_by_category', 'count_graphemes', 'detect_confusables', 'detect_invisibles', 'get_script_blocks', 'grapheme_slice', 'invisibles', 'is_mixed_script', 'iter_graphemes', 'reveal', 'safe_truncate', 'sanitize', 'segments', 'skeleton', 'spoofing']

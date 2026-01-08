@@ -1,0 +1,4 @@
+# file: /Users/marco/open-source/indium/src/indium/_scripts_data.py
+# hypothesis_version: 6.141.1
+
+[123, 170, 171, 186, 187, 192, 215, 216, 247, 248, 768, 880, 1024, 1280, 1424, 1536, 1792, 2304, 2432, 3584, 3712, 4352, 4608, 12352, 12448, 12544, 19968, 40960, 44032, 'Arabic', 'Common', 'Cyrillic', 'Devanagari', 'Greek', 'Han', 'Hangul', 'Hebrew', 'Hiragana', 'Inherited', 'Katakana', 'Latin', 'Thai', 'Unknown']

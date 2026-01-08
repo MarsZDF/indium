@@ -1,0 +1,74 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "elemental-indium"
+version = "0.1.0"
+description = "Zero-dependency text inspection: invisible characters, visual spoofing, and safe grapheme operations"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+dependencies = []  # ZERO runtime dependencies
+authors = [
+    { name = "Marco Zaccaria Di Fraia", email = "marco.z.difraia@gmail.com" }
+]
+keywords = [
+    "unicode",
+    "text",
+    "security",
+    "invisible-characters",
+    "homoglyphs",
+    "grapheme",
+    "spoofing",
+    "text-validation",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0", "pytest-cov>=4.0", "hypothesis>=6.0"]
+
+[project.urls]
+Homepage = "https://github.com/MarsZDF/indium"
+Repository = "https://github.com/MarsZDF/indium"
+"Bug Tracker" = "https://github.com/MarsZDF/indium/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/indium"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["tests"]
+addopts = [
+    "--cov=indium",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=90"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true

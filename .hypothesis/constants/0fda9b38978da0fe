@@ -1,0 +1,4 @@
+# file: /Users/marco/open-source/indium/src/indium/spoofing.py
+# hypothesis_version: 6.141.1
+
+[122, 192, 591, 880, 1023, 1024, 1279, 1424, 1535, 1536, 1791, 2304, 2431, 3584, 3711, 12352, 12447, 12448, 12543, 19968, 40959, 44032, 55215, 'Arabic', 'CJK', 'Common', 'Cyrillic', 'Devanagari', 'Greek', 'Hebrew', 'Inherited', 'Latin', 'M', 'N', 'NFKC', 'P', 'S', 'Thai', 'Unknown', 'Z']

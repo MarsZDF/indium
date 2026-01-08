@@ -1,0 +1,4 @@
+# file: /Users/marco/open-source/indium/src/indium/segments.py
+# hypothesis_version: 6.141.1
+
+['\u200d', '︀', '️', '🇦', '🇿', '🏻', '🏿']
