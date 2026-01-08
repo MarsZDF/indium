@@ -5,10 +5,9 @@ characters that could be used in phishing attacks, domain spoofing, or
 other security vulnerabilities.
 """
 
-import unicodedata
 import bisect
+import unicodedata
 from functools import lru_cache
-from typing import Union
 
 from ._confusables import CONFUSABLES
 from ._scripts_data import SCRIPT_RANGES

@@ -31,7 +31,7 @@ from .invisibles import count_by_category, detect_invisibles, reveal, sanitize
 from .segments import count_graphemes, grapheme_slice, iter_graphemes, safe_truncate
 from .spoofing import detect_confusables, get_script_blocks, is_mixed_script, skeleton
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 unicode_version = unicodedata.unidata_version
 
 __all__ = [

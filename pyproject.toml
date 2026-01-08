@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "elemental-indium"
-version = "0.1.0"
+version = "1.0.0"
 description = "Zero-dependency text inspection: invisible characters, visual spoofing, and safe grapheme operations"
 readme = "README.md"
 license = "MIT"
@@ -65,6 +65,7 @@ packages = ["src/indium"]
 pythonpath = "src"
 testpaths = ["tests"]
 addopts = [
+    "--doctest-modules",
     "--cov=indium",
     "--cov-report=term-missing",
     "--cov-report=html",

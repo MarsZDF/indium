@@ -179,7 +179,7 @@ def count_by_category(text: str) -> dict[str, int]:
         >>> count_by_category("hello")
         {'Ll': 5}
         >>> count_by_category("Hello World!")
-        {'Lu': 1, 'Ll': 9, 'Zs': 1, 'Po': 1}
+        {'Lu': 2, 'Ll': 8, 'Zs': 1, 'Po': 1}
         >>> result = count_by_category("test\\u200B")
         >>> result['Cf']  # Format category (invisible)
         1

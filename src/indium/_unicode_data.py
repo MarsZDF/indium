@@ -72,7 +72,7 @@ def is_combining(char: str) -> bool:
 
 
 def is_whitespace(char: str) -> bool:
-    """Check if character is standard whitespace.
+    r"""Check if character is standard whitespace.
 
     Args:
         char: Single character to check

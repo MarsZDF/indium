@@ -10,8 +10,6 @@ property of a Unicode code point using binary search.
 
 from typing import Final
 
-
-
 # Sorted list of (start_codepoint, script_name)
 # Use bisect.bisect_right to find the index
 SCRIPT_RANGES: Final[tuple[tuple[int, str], ...]] = (

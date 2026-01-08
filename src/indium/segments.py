@@ -8,29 +8,29 @@ Implementation: UAX #29 (Unicode Text Segmentation)
 """
 
 import bisect
+from collections.abc import Iterator
 from functools import lru_cache
-from typing import Iterator, Optional
+from typing import Optional
 
-from ._exceptions import TruncationError
 from ._grapheme_data import (
-    GRAPHEME_BREAK_RANGES,
-    CR,
-    LF,
     CONTROL,
+    CR,
     EXTEND,
-    ZWJ,
-    REGIONAL_INDICATOR,
-    PREPEND,
-    SPACINGMARK,
-    L,
-    V,
-    T,
-    LV,
-    LVT,
     EXTENDED_PICTOGRAPHIC,
-    INCB_LINKER,
+    GRAPHEME_BREAK_RANGES,
     INCB_CONSONANT,
     INCB_EXTEND,
+    INCB_LINKER,
+    LF,
+    LV,
+    LVT,
+    PREPEND,
+    REGIONAL_INDICATOR,
+    SPACINGMARK,
+    ZWJ,
+    L,
+    T,
+    V,
 )
 
 
@@ -42,7 +42,7 @@ def _get_break_property(codepoint: int) -> int:
     idx = bisect.bisect_right(GRAPHEME_BREAK_RANGES, (codepoint, 999))
     if idx == 0:
         return 0  # Should not happen if table covers 0
-    
+
     start, prop = GRAPHEME_BREAK_RANGES[idx - 1]
     return prop
 
@@ -244,7 +244,7 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
 
     curr_char = text[pos]
     prev_char = text[pos - 1]
-    
+
     curr_prop = _get_break_property(ord(curr_char))
     prev_prop = _get_break_property(ord(prev_char))
 
@@ -293,7 +293,7 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
         i = pos - 1
         found_linker = False
         linker_index = -1
-        
+
         while i >= 0:
             prop = _get_break_property(ord(text[i]))
             if prop == INCB_LINKER:
@@ -303,7 +303,7 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
             if prop not in (EXTEND, ZWJ, INCB_EXTEND, INCB_LINKER):
                 break  # Sequence broken before finding Linker
             i -= 1
-            
+
         if found_linker:
             # 2. Verify Linker is attached to a Consonant
             # Scan backwards from Linker skipping Extend/ZWJ/Linker
@@ -317,7 +317,7 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
                 if prop_j not in (EXTEND, ZWJ, INCB_EXTEND, INCB_LINKER):
                     break # Hit start of cluster or invalid char
                 j -= 1
-            
+
             if valid_base:
                 return False
 
@@ -342,14 +342,14 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
         # If count is even, we are in middle of new pair (no break).
         # The rule effectively says: "Do not break within a pair".
         # A pair starts at an even offset from the start of the RI sequence.
-        
+
         ri_count = 0
         i = pos - 1
         while i >= 0 and _get_break_property(ord(text[i])) == REGIONAL_INDICATOR:
             ri_count += 1
             i -= 1
-            
-        # If we have seen an odd number of RIs before 'curr', 
+
+        # If we have seen an odd number of RIs before 'curr',
         # then 'prev' and 'curr' form a pair.
         if ri_count % 2 == 1:
             return False
