@@ -356,6 +356,18 @@ truncate_post(post, 30)
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
+### Unicode Data Attribution
+
+This library includes data derived from the Unicode® Consortium:
+- Confusables data from UTS #39 (Unicode Security Mechanisms)
+- Script property data from Unicode Character Database
+- Grapheme break property data from UAX #29
+
+Copyright © Unicode, Inc. Used under Unicode License v3.
+Unicode and the Unicode Logo are registered trademarks of Unicode, Inc.
+
+For more information: https://www.unicode.org/license.txt
+
 ---
 
 ## 🤝 Contributing

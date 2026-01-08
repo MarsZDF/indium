@@ -31,7 +31,14 @@ HEADER = f'''"""Unicode Grapheme Cluster Break property data.
 
 AUTO-GENERATED FILE - DO NOT EDIT MANUALLY.
 Generated on {datetime.datetime.now().isoformat()}
-Source: Unicode Consortium (GraphemeBreakProperty.txt, emoji-data.txt, DerivedCoreProperties.txt)
+
+Data Source: Unicode® Consortium
+  - GraphemeBreakProperty.txt (UAX #29)
+  - emoji-data.txt
+  - DerivedCoreProperties.txt
+Copyright © Unicode, Inc.
+Unicode and the Unicode Logo are registered trademarks of Unicode, Inc.
+License: Unicode License v3 (https://www.unicode.org/license.txt)
 
 This module provides a lookup table for the Grapheme_Cluster_Break property,
 Extended_Pictographic property, and InCB (Indic Conjunct Break) properties.

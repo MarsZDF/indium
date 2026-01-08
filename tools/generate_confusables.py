@@ -23,10 +23,14 @@ HEADER = f'''"""Confusable character mappings for homoglyph detection.
 
 AUTO-GENERATED FILE - DO NOT EDIT MANUALLY.
 Generated on {datetime.datetime.now().isoformat()}
-Source: Unicode Consortium (TR39)
+
+Data Source: Unicode® Consortium (UTS #39 - Unicode Security Mechanisms)
+Copyright © Unicode, Inc.
+Unicode and the Unicode Logo are registered trademarks of Unicode, Inc.
+License: Unicode License v3 (https://www.unicode.org/license.txt)
 
 This module provides mappings from visually similar characters to their
-canonical Latin equivalents.
+canonical Latin equivalents, derived from Unicode confusables.txt.
 """
 
 from typing import Final

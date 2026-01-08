@@ -19,13 +19,20 @@ Thank you for your interest in contributing to `elemental-indium`! We strive for
 
 This library relies on official Unicode Consortium data. **Do not edit `src/indium/_confusables.py` or `_scripts_data.py` manually.**
 
-To update the data tables:
+To regenerate the data tables from Unicode data files (already downloaded in `tools/data/`):
 
 ```bash
-# This will download the latest data from unicode.org and regenerate the python modules
+# Regenerate confusables map from tools/data/confusables.txt
 python3 tools/generate_confusables.py
+
+# Regenerate script ranges from tools/data/Scripts.txt
 python3 tools/generate_scripts.py
+
+# Regenerate grapheme break data from tools/data/GraphemeBreakProperty.txt
+python3 tools/generate_grapheme_data.py
 ```
+
+**Note:** Unicode data files are already included. To download the latest Unicode version, delete the files in `tools/data/` and the generators will fetch them automatically.
 
 ## Testing
 
@@ -55,8 +62,17 @@ mypy src/indium --strict
 
 ## Benchmarks
 
-If you modify core logic, please run benchmarks to ensure no regression in the "Fast Path" optimizations.
+If you modify core logic, please manually test performance (benchmarks suite to be added):
 
-```bash
-python3 benchmarks/bench_core.py
+```python
+import time
+import indium
+
+# Example: Benchmark skeleton()
+text = "pаypal.com" * 100
+start = time.perf_counter()
+for _ in range(10_000):
+    indium.skeleton(text)
+elapsed = time.perf_counter() - start
+print(f"skeleton: {elapsed*1000/10_000:.3f} ms/op")
 ```
