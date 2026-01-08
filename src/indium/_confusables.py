@@ -14,7 +14,6 @@ canonical Latin equivalents, derived from Unicode confusables.txt.
 
 from typing import Final
 
-
 CONFUSABLES: Final[dict[str, str]] = {
     '\xa0': ' ',  # U+00A0 * (   →   ) NO-BREAK SPACE → SPACE	#
     '´': "'",  # U+00B4 * ( ´ → ' ) ACUTE ACCENT → APOSTROPHE	# →΄→→ʹ→
