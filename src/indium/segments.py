@@ -8,10 +8,9 @@ LIMITATION: This is a heuristic implementation covering common cases (emoji,
 combining marks, skin tones, flags). It is NOT a full UAX#29 implementation.
 """
 
-import unicodedata
-from typing import Iterator, Optional
+from collections.abc import Iterator
+from typing import Optional
 
-from ._exceptions import TruncationError
 from ._unicode_data import is_combining
 
 # Zero Width Joiner - used in emoji sequences
@@ -240,7 +239,7 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
     # Rule GB4/GB5: Control characters break (unless handled by GB3)
     # We treat standard Control/Format as boundaries unless they are extending marks
     # But for a simple library, let's stick to specific checks
-    
+
     # Don't break before combining marks (Mn, Mc, Me)
     if is_combining(current):
         return False
@@ -272,24 +271,27 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
     # Used to force emoji rendering of characters that can be text or emoji
     if current == '\uFE0F':
         return False
-        
+
     # Hangul Syllable logic (UAX #29 GB6, GB7, GB8)
     # L = Choseong, V = Jungseong, T = Jongseong, LV, LVT
-    
+
     # Check simple L, V, T ranges
     prev_code = ord(previous)
     curr_code = ord(current)
-    
+
     is_prev_L = HANGUL_L_START <= prev_code <= HANGUL_L_END
     is_curr_L = HANGUL_L_START <= curr_code <= HANGUL_L_END
     is_curr_V = HANGUL_V_START <= curr_code <= HANGUL_V_END
-    
+
     # GB6: L x (L|V|LV|LVT)
     if is_prev_L:
-        if is_curr_L: return False # L x L
-        if is_curr_V: return False # L x V
-        if HANGUL_SYLLABLE_START <= curr_code <= HANGUL_SYLLABLE_END: return False # L x LV or L x LVT
-        
+        if is_curr_L:
+            return False  # L x L
+        if is_curr_V:
+            return False  # L x V
+        if HANGUL_SYLLABLE_START <= curr_code <= HANGUL_SYLLABLE_END:
+            return False  # L x LV or L x LVT
+
     # Partial implementation for common Hangul composition
     # (Full implementation would require complete properties for all Hangul syllables)
 

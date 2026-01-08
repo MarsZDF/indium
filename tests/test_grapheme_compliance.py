@@ -5,17 +5,17 @@ References: https://www.unicode.org/reports/tr29/
 """
 
 import dataclasses
-from typing import List
 
 import pytest
-import indium
+
 from indium import segments
+
 
 @dataclasses.dataclass
 class GraphemeTestCase:
     comment: str
-    codepoints: List[int]
-    expected_graphemes: List[str]
+    codepoints: list[int]
+    expected_graphemes: list[str]
 
 # Representative subset of GraphemeBreakTest.txt
 # Format: ÷ = Break, × = No Break
@@ -69,11 +69,11 @@ TEST_CASES = [
 def test_grapheme_compliance(case):
     """Verify that text segmentation matches the expected grapheme clusters."""
     text = "".join(chr(cp) for cp in case.codepoints)
-    
+
     # Test count_graphemes
     assert segments.count_graphemes(text) == len(case.expected_graphemes), \
         f"Count failed for {case.comment}"
-    
+
     # Test iter_graphemes
     actual_graphemes = list(segments.iter_graphemes(text))
     assert actual_graphemes == case.expected_graphemes, \
@@ -87,12 +87,12 @@ def test_legacy_grapheme_clusters():
     # ss (SSA) = 0937
     # i (Vowel Sign I) = 093F
     text = "\u0915\u094D\u0937\u093F" # Kshi
-    
+
     # In legacy/standard segmentation this might be one or two clusters depending on engine.
     # Python's unicodedata is usually good with combining marks.
     # We expect: 1 cluster (Kshi) because of Virama
-    
+
     clusters = list(segments.iter_graphemes(text))
     # If this assertion fails, it's not critical but informative about the implementation limits
     # The standard says Virama connects consonants.
-    assert len(clusters) == 1 or len(clusters) == 2 
+    assert len(clusters) == 1 or len(clusters) == 2

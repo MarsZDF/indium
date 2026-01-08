@@ -3,8 +3,7 @@
 These tests verify invariants and properties that should hold for all inputs.
 """
 
-import pytest
-from hypothesis import given, assume
+from hypothesis import given
 from hypothesis import strategies as st
 
 import indium

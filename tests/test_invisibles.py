@@ -4,7 +4,6 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-import indium
 from indium import invisibles
 
 

@@ -5,7 +5,6 @@ characters in Unicode text. Useful for security validation, log analysis,
 and preventing invisible character attacks.
 """
 
-import unicodedata
 from typing import Final
 
 from ._unicode_data import (
@@ -121,10 +120,7 @@ def sanitize(text: str, *, schema: str = "strict", preserve_zwj: bool = False) -
 
     for char in text:
         # Always keep standard whitespace
-        if is_whitespace(char):
-            result.append(char)
-        # Keep ZWJ if configured
-        elif char == ZWJ and keep_zwj:
+        if is_whitespace(char) or char == ZWJ and keep_zwj:
             result.append(char)
         # Remove all other invisible characters
         elif is_invisible(char):

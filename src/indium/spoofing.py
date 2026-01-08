@@ -5,9 +5,8 @@ characters that could be used in phishing attacks, domain spoofing, or
 other security vulnerabilities.
 """
 
-import unicodedata
 import bisect
-from typing import Union
+import unicodedata
 
 from ._confusables import CONFUSABLES
 from ._scripts_data import SCRIPT_RANGES
@@ -209,24 +208,24 @@ def _get_script_name(char: str) -> str:
         return "Unknown"
 
     codepoint = ord(char)
-    
+
     # Binary search to find the script range
     # SCRIPT_RANGES is a sorted list of (start_cp, script_name)
     # bisect_right returns the insertion point to maintain order
     # index-1 gives the range that starts <= codepoint
     idx = bisect.bisect_right(SCRIPT_RANGES, (codepoint, 'zzzzzz'))
-    
+
     if idx == 0:
         return "Unknown"
-        
+
     start_cp, script = SCRIPT_RANGES[idx - 1]
-    
+
     # Note: Our generator fills gaps with "Unknown", so this covers
     # the case where codepoint is in a gap (implicit or explicit)
-    
+
     if script in ('Hiragana', 'Katakana', 'Han', 'Hangul'):
         return 'CJK'
-    
+
     if script == "Unknown":
         # Fallback to category heuristics for Common/Inherited if unknown script
         # This handles characters not yet in our table or special categories
@@ -236,6 +235,6 @@ def _get_script_name(char: str) -> str:
             return "Common"
         if category.startswith('M'):
             return "Inherited"
-            
+
     return script
 
