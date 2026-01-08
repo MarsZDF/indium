@@ -4,27 +4,45 @@ This module provides safe text slicing and truncation that respects grapheme
 cluster boundaries. Prevents breaking emoji sequences, combining character
 sequences, and other multi-codepoint visual units.
 
-LIMITATION: This is a heuristic implementation covering common cases (emoji,
-combining marks, skin tones, flags). It is NOT a full UAX#29 implementation.
+Implementation: UAX #29 (Unicode Text Segmentation)
 """
 
-from collections.abc import Iterator
-from typing import Optional
+import bisect
+from typing import Iterator, Optional
 
-from ._unicode_data import is_combining
+from ._exceptions import TruncationError
+from ._grapheme_data import (
+    GRAPHEME_BREAK_RANGES,
+    CR,
+    LF,
+    CONTROL,
+    EXTEND,
+    ZWJ,
+    REGIONAL_INDICATOR,
+    PREPEND,
+    SPACINGMARK,
+    L,
+    V,
+    T,
+    LV,
+    LVT,
+    EXTENDED_PICTOGRAPHIC,
+    INCB_LINKER,
+    INCB_CONSONANT,
+    INCB_EXTEND,
+)
 
-# Zero Width Joiner - used in emoji sequences
-ZWJ: str = '\u200D'
 
-# Hangul Constants (UAX #29)
-HANGUL_L_START = 0x1100
-HANGUL_L_END = 0x115F
-HANGUL_V_START = 0x1160
-HANGUL_V_END = 0x11A7
-HANGUL_T_START = 0x11A8
-HANGUL_T_END = 0x11FF
-HANGUL_SYLLABLE_START = 0xAC00
-HANGUL_SYLLABLE_END = 0xD7A3
+def _get_break_property(codepoint: int) -> int:
+    """Get Grapheme_Cluster_Break property for a code point."""
+    # Binary search in the RLE table
+    # index-1 gives the range containing codepoint (or starting before it)
+    idx = bisect.bisect_right(GRAPHEME_BREAK_RANGES, (codepoint, 999))
+    if idx == 0:
+        return 0  # Should not happen if table covers 0
+    
+    start, prop = GRAPHEME_BREAK_RANGES[idx - 1]
+    return prop
 
 
 def safe_truncate(text: str, max_graphemes: int) -> str:
@@ -187,9 +205,6 @@ def iter_graphemes(text: str) -> Iterator[str]:
 def _find_grapheme_end(text: str, pos: int) -> int:
     """Find the end position of the grapheme cluster starting at pos.
 
-    Implements a subset of Unicode TR29 (Extended Grapheme Clusters).
-    Handles common cases but not all edge cases.
-
     Args:
         text: Input string
         pos: Start position of grapheme
@@ -213,8 +228,7 @@ def _find_grapheme_end(text: str, pos: int) -> int:
 def _is_grapheme_boundary(text: str, pos: int) -> bool:
     """Check if position is a valid grapheme boundary.
 
-    Implements grapheme boundary rules from Unicode TR29.
-    This is a heuristic covering common cases, not a complete implementation.
+    Implements Unicode TR29 (Grapheme Cluster Boundaries).
 
     Args:
         text: Input string
@@ -223,91 +237,120 @@ def _is_grapheme_boundary(text: str, pos: int) -> bool:
     Returns:
         True if position is a valid grapheme boundary
     """
-    if pos >= len(text):
+    if pos == 0 or pos >= len(text):
         return True
 
-    if pos == 0:
+    curr_char = text[pos]
+    prev_char = text[pos - 1]
+    
+    curr_prop = _get_break_property(ord(curr_char))
+    prev_prop = _get_break_property(ord(prev_char))
+
+    # GB3: CR x LF
+    if prev_prop == CR and curr_prop == LF:
+        return False
+
+    # GB4: (Control | CR | LF) ÷
+    if prev_prop in (CONTROL, CR, LF):
         return True
 
-    current = text[pos]
-    previous = text[pos - 1]
+    # GB5: ÷ (Control | CR | LF)
+    if curr_prop in (CONTROL, CR, LF):
+        return True
 
-    # Rule GB3: CR x LF
-    if previous == '\r' and current == '\n':
+    # GB6: L x (L | V | LV | LVT)
+    if prev_prop == L and curr_prop in (L, V, LV, LVT):
         return False
 
-    # Rule GB4/GB5: Control characters break (unless handled by GB3)
-    # We treat standard Control/Format as boundaries unless they are extending marks
-    # But for a simple library, let's stick to specific checks
-
-    # Don't break before combining marks (Mn, Mc, Me)
-    if is_combining(current):
+    # GB7: (LV | V) x (V | T)
+    if prev_prop in (LV, V) and curr_prop in (V, T):
         return False
 
-    # Don't break within ZWJ sequences (emoji ligatures)
-    # Example: 👨‍👩‍👧 (family) = man + ZWJ + woman + ZWJ + girl
-    if previous == ZWJ:
-        return False
-    if current == ZWJ:
+    # GB8: (LVT | T) x T
+    if prev_prop in (LVT, T) and curr_prop == T:
         return False
 
-    # Don't break emoji modifier sequences (skin tone)
-    # Skin tone modifiers: U+1F3FB-U+1F3FF
-    if '\U0001F3FB' <= current <= '\U0001F3FF':
+    # GB9: x (Extend | ZWJ)
+    # Note: InCB_Linker and InCB_Extend must also be treated as Extend for GB9
+    if curr_prop in (EXTEND, ZWJ, INCB_EXTEND, INCB_LINKER):
         return False
 
-    # Don't break regional indicator pairs (flag emoji)
-    # Flags are pairs of regional indicators: U+1F1E6-U+1F1FF
-    # Example: 🇺🇸 = U+1F1FA + U+1F1F8
-    if _is_regional_indicator(previous) and _is_regional_indicator(current):
+    # GB9a: x SpacingMark
+    if curr_prop == SPACINGMARK:
         return False
 
-    # Don't break variation selectors (U+FE00-U+FE0F)
-    # These modify the presentation of the previous character
-    if '\uFE00' <= current <= '\uFE0F':
+    # GB9b: Prepend x
+    if prev_prop == PREPEND:
         return False
 
-    # Don't break emoji presentation selector (U+FE0F)
-    # Used to force emoji rendering of characters that can be text or emoji
-    if current == '\uFE0F':
-        return False
+    # GB9c: \p{InCB=Linker} [ \p{InCB=Extend} \p{InCB=Linker} \p{Zwj} ]* x \p{InCB=Consonant}
+    # Restriction: The Linker itself must be part of a valid syllable, i.e., preceded by Consonant.
+    # This fixes failures where 'a' + Virama + 'Ta' breaks (because 'a' is not InCB Consonant).
+    if curr_prop == INCB_CONSONANT:
+        # 1. Scan backwards for Linker
+        i = pos - 1
+        found_linker = False
+        linker_index = -1
+        
+        while i >= 0:
+            prop = _get_break_property(ord(text[i]))
+            if prop == INCB_LINKER:
+                found_linker = True
+                linker_index = i
+                break
+            if prop not in (EXTEND, ZWJ, INCB_EXTEND, INCB_LINKER):
+                break  # Sequence broken before finding Linker
+            i -= 1
+            
+        if found_linker:
+            # 2. Verify Linker is attached to a Consonant
+            # Scan backwards from Linker skipping Extend/ZWJ/Linker
+            j = linker_index - 1
+            valid_base = False
+            while j >= 0:
+                prop_j = _get_break_property(ord(text[j]))
+                if prop_j == INCB_CONSONANT:
+                    valid_base = True
+                    break
+                if prop_j not in (EXTEND, ZWJ, INCB_EXTEND, INCB_LINKER):
+                    break # Hit start of cluster or invalid char
+                j -= 1
+            
+            if valid_base:
+                return False
 
-    # Hangul Syllable logic (UAX #29 GB6, GB7, GB8)
-    # L = Choseong, V = Jungseong, T = Jongseong, LV, LVT
+    # GB11: \p{Extended_Pictographic} Extend* ZWJ x \p{Extended_Pictographic}
+    if prev_prop == ZWJ and curr_prop == EXTENDED_PICTOGRAPHIC:
+        # Scan backwards to see if ZWJ is preceded by Extended_Pictographic + Extend*
+        i = pos - 2
+        while i >= 0:
+            prop = _get_break_property(ord(text[i]))
+            if prop == EXTENDED_PICTOGRAPHIC:
+                return False
+            # Treat InCB properties as Extend for this rule too?
+            # UAX #29 says "Extend". InCB_Extend and InCB_Linker ARE Extend.
+            if prop not in (EXTEND, INCB_EXTEND, INCB_LINKER):
+                break
+            i -= 1
 
-    # Check simple L, V, T ranges
-    prev_code = ord(previous)
-    curr_code = ord(current)
+    # GB12/GB13: Regional_Indicator sequence
+    if prev_prop == REGIONAL_INDICATOR and curr_prop == REGIONAL_INDICATOR:
+        # We need to count RI characters backwards from pos
+        # If count is odd, it's a valid pair (break after second).
+        # If count is even, we are in middle of new pair (no break).
+        # The rule effectively says: "Do not break within a pair".
+        # A pair starts at an even offset from the start of the RI sequence.
+        
+        ri_count = 0
+        i = pos - 1
+        while i >= 0 and _get_break_property(ord(text[i])) == REGIONAL_INDICATOR:
+            ri_count += 1
+            i -= 1
+            
+        # If we have seen an odd number of RIs before 'curr', 
+        # then 'prev' and 'curr' form a pair.
+        if ri_count % 2 == 1:
+            return False
 
-    is_prev_L = HANGUL_L_START <= prev_code <= HANGUL_L_END
-    is_curr_L = HANGUL_L_START <= curr_code <= HANGUL_L_END
-    is_curr_V = HANGUL_V_START <= curr_code <= HANGUL_V_END
-
-    # GB6: L x (L|V|LV|LVT)
-    if is_prev_L:
-        if is_curr_L:
-            return False  # L x L
-        if is_curr_V:
-            return False  # L x V
-        if HANGUL_SYLLABLE_START <= curr_code <= HANGUL_SYLLABLE_END:
-            return False  # L x LV or L x LVT
-
-    # Partial implementation for common Hangul composition
-    # (Full implementation would require complete properties for all Hangul syllables)
-
+    # GB999: Any ÷ Any
     return True
-
-
-def _is_regional_indicator(char: str) -> bool:
-    """Check if character is a regional indicator (used for flags).
-
-    Args:
-        char: Single character
-
-    Returns:
-        True if character is in regional indicator range
-    """
-    if len(char) != 1:
-        return False
-
-    return '\U0001F1E6' <= char <= '\U0001F1FF'

@@ -219,19 +219,18 @@ class TestGraphemeBoundaries:
         assert not segments._is_grapheme_boundary(text, 1)
 
     def test_not_boundary_zwj(self):
-        """Test not a boundary within ZWJ sequence."""
-        text = "a\u200Db"  # a + ZWJ + b
-        # Position after ZWJ is not a boundary
+        """Test not a boundary within ZWJ sequence (Emoji)."""
+        text = "👨\u200D👩"  # Man + ZWJ + Woman
+        # Position after ZWJ (index 2) is not a boundary
+        # Man (0), ZWJ (1), Woman (2)
+        # Note: Man is 1 char? No, Man is \U0001F468 (1 char wide in Python 3, usually).
+        # Let's verify indices.
+        # len("👨") is 1. len(ZWJ) is 1.
+        # Indices: 0 (Man), 1 (ZWJ), 2 (Woman)
+        # Boundary at 2 means between ZWJ and Woman.
         assert not segments._is_grapheme_boundary(text, 2)
 
-    def test_is_regional_indicator(self):
-        """Test regional indicator detection."""
-        # US flag: two regional indicators
-        ri_u = "\U0001F1FA"  # Regional indicator U
-        ri_s = "\U0001F1F8"  # Regional indicator S
-        assert segments._is_regional_indicator(ri_u)
-        assert segments._is_regional_indicator(ri_s)
-        assert not segments._is_regional_indicator("a")
+    # _is_regional_indicator removed in v1.0 refactor
 
 
 class TestEdgeCases:

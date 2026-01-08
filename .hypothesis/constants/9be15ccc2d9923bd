@@ -1,0 +1,4 @@
+# file: /Users/marco/open-source/indium/src/indium/invisibles.py
+# hypothesis_version: 6.141.1
+
+['hex', 'name', 'permissive', 'strict', 'unicode', '\xad', '\u200b', '\u200c', '\u200d', '\u202a', '\u202b', '\u202c', '\u202d', '\u202e', '\u2066', '\u2067', '\u2068', '\u2069', '␣']
