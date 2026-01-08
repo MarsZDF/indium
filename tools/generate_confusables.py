@@ -123,10 +123,13 @@ def main():
             input_path = mock_path
         else:
             print(f"Downloading from {URL}...")
-            input_path = "tools/data/confusables_downloaded.txt"
+            # Ensure directory exists
+            download_dir = Path("tools/data")
+            download_dir.mkdir(parents=True, exist_ok=True)
+            
+            input_path = str(download_dir / "confusables.txt")
             urllib.request.urlretrieve(URL, input_path)
-
+            
     generate(input_path)
-
 if __name__ == "__main__":
     main()

@@ -140,7 +140,11 @@ def main():
             input_path = mock_path
         else:
             print(f"Downloading from {URL}...")
-            input_path = "tools/data/Scripts_downloaded.txt"
+            # Ensure directory exists
+            download_dir = Path("tools/data")
+            download_dir.mkdir(parents=True, exist_ok=True)
+            
+            input_path = str(download_dir / "Scripts.txt")
             urllib.request.urlretrieve(URL, input_path)
 
     generate(input_path)

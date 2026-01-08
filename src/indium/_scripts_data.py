@@ -1,7 +1,7 @@
 """Unicode Script property data.
 
 AUTO-GENERATED FILE - DO NOT EDIT MANUALLY.
-Generated on 2026-01-08T13:54:48.046468
+Generated on 2026-01-08T14:29:58.671233
 Source: Unicode Consortium (Scripts.txt)
 
 This module provides an efficient lookup table for determining the Script
@@ -9,6 +9,8 @@ property of a Unicode code point using binary search.
 """
 
 from typing import Final
+
+
 
 # Sorted list of (start_codepoint, script_name)
 # Use bisect.bisect_right to find the index

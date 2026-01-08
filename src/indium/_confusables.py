@@ -1,7 +1,7 @@
 """Confusable character mappings for homoglyph detection.
 
 AUTO-GENERATED FILE - DO NOT EDIT MANUALLY.
-Generated on 2026-01-08T13:54:47.959446
+Generated on 2026-01-08T14:29:57.826153
 Source: Unicode Consortium (TR39)
 
 This module provides mappings from visually similar characters to their
@@ -9,6 +9,7 @@ canonical Latin equivalents.
 """
 
 from typing import Final
+
 
 CONFUSABLES: Final[dict[str, str]] = {
     '\xa0': ' ',  # U+00A0 * (   →   ) NO-BREAK SPACE → SPACE	#
