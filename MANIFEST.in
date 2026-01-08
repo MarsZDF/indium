@@ -1,0 +1,10 @@
+exclude tools/*
+exclude tests/*
+exclude benchmarks/*
+exclude .*
+exclude *.ipynb
+include LICENSE
+include README.md
+include pyproject.toml
+recursive-include src/indium *.py
+recursive-include src/indium py.typed
